@@ -1,7 +1,7 @@
 # Kubo
 A dotfile manager centered around a daemon.
 
-# Usage
+## Usage
 Create a directory called `.kubo` in `$HOME`, then create a file called `kubo.toml` in `.kubo`. `kubo.toml` lists your dotfiles, and can look something like this:
 ```toml
 hypr =  { source = "/home/USER/.config/hypr",  target = "hypr"  }
@@ -12,7 +12,7 @@ kitty = { source = "/home/USER/.config/kitty", target = "kitty" }
 
 `source` defines where the dotfiles would be stored normally in the home directory, and `target` defines where in `.kubo` you want to copy them too (and under what name). Kubo does not currently create parent folders yet, but that's planned for the future.
 
-# Why another dotfile manager? Why a daemon of all things?
+## Why another dotfile manager? Why a daemon of all things?
 I wanted a dotfile manager that didn't do sym-links yet also updated by backed up dotfiles in real time. I used Chezmoi before, and while it's nice, it has the following issues:
 - Does not update in real time
 - Deleting old configs is a pain
@@ -26,14 +26,14 @@ So I wrote Kubo, a dotfiles manager without sym links that updates in real time.
 - Do only job only: properly manage and back up dotfiles
 - Kubo should only copy to `.kubo`, the user decides what they want to do with `.kubo`
 
-# Why the name Kubo?
+## Why the name Kubo?
 When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was also watching the anime "Kubo Won't Let Me Be Invisible". I figured Kubo made a good name (and naming things is hard)
 
-# What are some features planned?
+## What are some features planned?
 Kubo is "mostly complete", I just got to iron out bugs, make the code cleaner, etc. I do want to add a `packages` option eventually, and have Kubo either list or install packages associated with one's dotfiles. After all, I also want to declare what packages use what set of dotfiles.
 
-# Are there other dotfile managers?
+## Are there other dotfile managers?
 [The Arch Wiki](https://wiki.archlinux.org/title/Dotfiles#Tools) has a pretty large list of them, I suggest looking there.
 
-# Ew, Rust (Actual comment I've gotten)
+## Ew, Rust (Actual comment I've gotten)
 You're not forced to use this, I created this for personal use and wanted to share it.
