@@ -12,6 +12,8 @@ kitty = { source = "/home/USER/.config/kitty", target = "kitty" }
 
 `source` defines where the dotfiles would be stored normally in the home directory, and `target` defines where in `.kubo` you want to copy them too (and under what name). Kubo does not currently create parent folders yet, but that's planned for the future.
 
+Finally, run `kubo` to start the daemon.
+
 ## Why another dotfile manager? Why a daemon of all things?
 I wanted a dotfile manager that didn't do sym-links yet also updated by backed up dotfiles in real time. I used Chezmoi before, and while it's nice, it has the following issues:
 - Does not update in real time
@@ -31,6 +33,8 @@ When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was al
 
 ## What are some features planned?
 Kubo is "mostly complete", I just got to iron out bugs, make the code cleaner, etc. I do want to add a `packages` option eventually, and have Kubo either list or install packages associated with one's dotfiles. After all, I also want to declare what packages use what set of dotfiles.
+
+In addition, I want to add some subcommands to make adding dotfiles easier, like `kubo add` and `kubo rm`.
 
 ## Are there other dotfile managers?
 [The Arch Wiki](https://wiki.archlinux.org/title/Dotfiles#Tools) has a pretty large list of them, I suggest looking there.
