@@ -32,5 +32,8 @@ When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was al
 # What are some features planned?
 Kubo is "mostly complete", I just got to iron out bugs, make the code cleaner, etc. I do want to add a `packages` option eventually, and have Kubo either list or install packages associated with one's dotfiles. After all, I also want to declare what packages use what set of dotfiles.
 
-# Are there other dotfile managers
+# Are there other dotfile managers?
 [The Arch Wiki](https://wiki.archlinux.org/title/Dotfiles#Tools) has a pretty large list of them, I suggest looking there.
+
+# Ew, Rust (Actual comment I've gotten)
+You're not forced to use this, I created this for personal use and wanted to share it.
