@@ -1,5 +1,5 @@
 # Kubo
-A dotfile manager centered around a daemon.
+A dotfile manager that watches files in real time.
 
 ## Usage
 Create a directory called `.kubo` in `$HOME`, then create a file called `kubo.toml` in `.kubo`. `kubo.toml` lists your dotfiles, and can look something like this:
