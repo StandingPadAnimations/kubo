@@ -128,7 +128,7 @@ impl KuboManager<Locked> {
     /// Returns: KuboManager<Locked>
     pub fn initial_copy(self) -> KuboManager<Locked> {
         for (path, _) in &self.paths {
-            crate::copy_to_kubo(Path::new(path), &self);
+            crate::operations::copy_to_kubo(Path::new(path), &self);
         }
         self
     }
