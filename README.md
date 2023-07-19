@@ -8,11 +8,16 @@ hypr =  { source = "/home/USER/.config/hypr",  target = "hypr"  }
 eww  =  { source = "/home/USER/.config/eww",   target = "eww"   }
 kitty = { source = "/home/USER/.config/kitty", target = "kitty" }
 ```
-(Note at the moment, `~` does not work in paths yet, but I plan to fix that)
+(Note at the moment, `~` does not work for paths defined in kubo.toml yet, but I plan to fix that)
 
 `source` defines where the dotfiles would be stored normally in the home directory, and `target` defines where in `.kubo` you want to copy them too (and under what name). Kubo does not currently create parent folders yet, but that's planned for the future.
 
-Finally, run `kubo` to start the daemon.
+To add dotfiles easily, you can run `kubo add <name> <dotfiles> <target>`. Using Hyprland as an example:
+```sh
+kubo add hyprland ~/.config/hypr hypr
+```
+
+Finally, run `kubo daemon` to start the daemon.
 
 ## Why another dotfile manager? Why a daemon of all things?
 I wanted a dotfile manager that didn't do sym-links yet also updated by backed up dotfiles in real time. I used Chezmoi before, and while it's nice, it has the following issues:
@@ -24,9 +29,9 @@ In addition, I also wanted to declare my dotfiles with a config file. I tried [t
 So I wrote Kubo, a dotfiles manager without sym links that updates in real time. Kubo's philosophy is the following:
 - Directories outside `.kubo` should only be modified after A. telling the user what will be modified and B. with user permission.
 - No sym-links; a backup is to be a second copy, not the only copy.
-- Declarative configs are amazing, let's do more of those
-- Do only job only: properly manage and back up dotfiles
-- Kubo should only copy to `.kubo`, the user decides what they want to do with `.kubo`
+- Declarative configs are amazing, let's do more of those.
+- Do only job only: properly manage and back up dotfiles.
+- Kubo should only copy to `.kubo`, the user decides what they want to do with `.kubo`.
 
 ## Why the name Kubo?
 When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was also watching the anime "Kubo Won't Let Me Be Invisible". I figured Kubo made a good name (and naming things is hard)

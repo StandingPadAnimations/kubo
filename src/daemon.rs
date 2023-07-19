@@ -1,5 +1,6 @@
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::{Path, PathBuf};
+use crate::{kubo_manager, kubo_config, operations};
 
 /// Actual daemon that watches files for changes
 pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManager::<kubo_manager::Locked>) -> notify::Result<()> {
