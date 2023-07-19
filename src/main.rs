@@ -38,7 +38,7 @@ fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManager::<
                         state = kubo_config::read_config(nstate);
                         state = state.initial_copy();
                     } else {
-                        operations::copy_to_kubo(&path, &state);
+                        operations::copy_to_kubo(&path, &state, operations::WithTarget::Yay);
                     }
                 }
             },

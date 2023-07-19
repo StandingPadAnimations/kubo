@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use crate::operations;
+
 /// Represents a locked
 /// KuboManager
 pub struct Locked;
@@ -128,7 +130,7 @@ impl KuboManager<Locked> {
     /// Returns: KuboManager<Locked>
     pub fn initial_copy(self) -> KuboManager<Locked> {
         for (path, _) in &self.paths {
-            crate::operations::copy_to_kubo(Path::new(path), &self);
+            operations::copy_to_kubo(Path::new(path), &self, operations::WithTarget::Nay);
         }
         self
     }
