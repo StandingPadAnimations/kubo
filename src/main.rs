@@ -1,10 +1,10 @@
 use clap::{Parser, Subcommand};
+use std::io::{self, Write};
 
 mod kubo_manager;
 mod kubo_config;
 mod operations;
 mod daemon;
-
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -16,9 +16,23 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Adds files to myapp
-    Add { name: String, src: String, target: String },
-    Rm { name: Option<String> },
+    /// Adds a dotfile to kubo.toml
+    Add {
+        /// The name associated with
+        /// a set of dotfiles
+        name: String, 
+        /// The normal location of 
+        /// a set of dotfiles
+        src: String, 
+        /// The target folder in 
+        /// .kubo
+        target: String 
+    },
+    /// Removes a dotfile from kubo.toml
+    Rm { name: String },
+    /// Lists all managed dotfiles
+    Ls,
+    /// Runs the Kubo daemon
     Daemon,
 }
 
@@ -34,7 +48,27 @@ fn main() {
             }
         }
         Commands::Rm { name } => {
-            println!("rm {name:?}")
+            let state = kubo_manager::KuboManager::new().lock();
+            let res = kubo_config::remove_dotfile(state, name);
+            if res.is_ok() {
+                println!("Removed {}", name);
+            }
+        }
+        Commands::Ls => {
+            let state = kubo_manager::KuboManager::new().lock();
+            let list = kubo_config::list_dotfiles(state);
+
+            // We use a buffer to reduce
+            // the amount of times Rust flushes
+            // the output; This helps when there's
+            // a lot of dotfiles
+            if let Ok(dots) = list {
+                let stdout = io::stdout();
+                let mut handle = io::BufWriter::new(stdout); 
+                for d in dots {
+                    let _ = writeln!(handle, "{}", d); 
+                }
+            }
         }
         Commands::Daemon => {
             // Start the daemon

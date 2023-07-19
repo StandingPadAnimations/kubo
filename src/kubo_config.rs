@@ -43,3 +43,33 @@ pub fn add_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, nam
     }
     Ok(())
 }
+
+pub fn remove_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, name: &str) -> Result<(), ()> {
+    let mut toml_config = String::new();
+    File::open(state.get_kubo_dir() + "/kubo.toml")
+        .and_then(|mut f| f.read_to_string(&mut toml_config))
+        .unwrap();
+
+    let mut toml_config = toml_config.parse::<Document>().unwrap();
+    toml_config.remove(name);
+    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string()); 
+    if res.is_err() {
+        return Err(());
+    }
+    Ok(())
+}
+
+pub fn list_dotfiles(state: kubo_manager::KuboManager::<kubo_manager::Locked>) -> Result<Vec<String>, ()> {
+    let mut toml_config = String::new();
+    File::open(state.get_kubo_dir() + "/kubo.toml")
+        .and_then(|mut f| f.read_to_string(&mut toml_config))
+        .unwrap();
+
+    let toml_config = toml_config.parse::<Table>().unwrap();
+    let mut res: Vec<String> = Vec::new();
+    for dot in toml_config {
+        res.push(dot.0);
+    }
+    Ok(res)
+}
+
