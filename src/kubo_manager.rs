@@ -14,19 +14,19 @@ pub struct Unlocked;
 /// dotfiles and their equivilent
 /// in $HOME/.kubo
 ///
-/// In addition, KuboManager has a 
+/// In addition, KuboManager has a
 /// state that decides whether new paths
 /// should be added or not.
 pub struct KuboManager<State = Unlocked> {
-    /// A list of source paths to 
+    /// A list of source paths to
     /// their target paths.
     paths: Vec<(String, String)>,
     kubo_dir: String,
-    state: std::marker::PhantomData<State>
+    state: std::marker::PhantomData<State>,
 }
 
 impl KuboManager {
-    /// Create a new KuboManager 
+    /// Create a new KuboManager
     /// with no paths to manage.
     ///
     /// Returns: KuboManager<Unlocked>
@@ -43,7 +43,7 @@ impl KuboManager {
         }
     }
 }
-    
+
 impl<State> KuboManager<State> {
     /// Get the target path for a given
     /// source path, provided the source
@@ -56,9 +56,8 @@ impl<State> KuboManager<State> {
     pub fn get_target(&self, path: &Path) -> Result<String, ()> {
         for (src, target) in &self.paths {
             if path.starts_with(src) {
-                let target_path: std::path::PathBuf = path.iter()
-                    .skip_while(|p| *p != target.as_str())
-                    .collect();
+                let target_path: std::path::PathBuf =
+                    path.iter().skip_while(|p| *p != target.as_str()).collect();
                 let target_path = target_path.to_str();
                 if target_path.is_none() {
                     return Err(());
@@ -68,7 +67,7 @@ impl<State> KuboManager<State> {
         }
         Err(())
     }
-    
+
     /// Return the kubo folder path
     ///
     /// Returns: String
@@ -90,15 +89,15 @@ impl KuboManager<Unlocked> {
         self
     }
 
-    /// Clears all paths stored in 
+    /// Clears all paths stored in
     /// the manager.
     ///
     /// Returns: KuboManager<Unlocked>
     pub fn clear_paths(mut self) -> KuboManager<Unlocked> {
         self.paths = Vec::new();
-        self 
+        self
     }
-    
+
     /// Makes KuboManager read only.
     ///
     /// Returns: KuboManager<Locked>
@@ -122,7 +121,7 @@ impl KuboManager<Locked> {
             state: std::marker::PhantomData::<Unlocked>,
         }
     }
-    
+
     /// Creates an initial copy of all
     /// files; this is to be ran once at
     /// startup.

@@ -1,11 +1,14 @@
-use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
-use std::{path::{Path, PathBuf}, fs::File};
-use crate::{kubo_manager, kubo_config, operations};
+use crate::{kubo_config, kubo_manager, operations};
 use fd_lock::RwLock;
+use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
+use std::{
+    fs::File,
+    path::{Path, PathBuf},
+};
 
 pub struct LockFile(pub RwLock<File>);
 impl LockFile {
-    pub fn new(state: &kubo_manager::KuboManager::<kubo_manager::Unlocked>) -> Result<Self, ()> {
+    pub fn new(state: &kubo_manager::KuboManager<kubo_manager::Unlocked>) -> Result<Self, ()> {
         let path = state.get_kubo_dir() + "/kubo.lockfile";
         if Path::new(&path).exists() == false {
             if let Err(_) = File::create(&path) {
@@ -24,7 +27,10 @@ impl LockFile {
 }
 
 /// Actual daemon that watches files for changes
-pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManager::<kubo_manager::Locked>) -> notify::Result<()> {
+pub fn daemon<P: AsRef<Path>>(
+    paths: Vec<P>,
+    mut state: kubo_manager::KuboManager<kubo_manager::Locked>,
+) -> notify::Result<()> {
     let (tx, rx) = std::sync::mpsc::channel();
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     for p in paths {
@@ -36,7 +42,11 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
     watcher.watch(kubo_config.as_ref(), RecursiveMode::NonRecursive)?;
     for res in rx {
         match res {
-            Ok(notify::Event { kind: notify::EventKind::Modify(_), paths, .. }) => {
+            Ok(notify::Event {
+                kind: notify::EventKind::Modify(_),
+                paths,
+                ..
+            }) => {
                 // Sleep for a 500ms to account for editor shenanigans
                 std::thread::sleep(std::time::Duration::from_millis(50));
                 let mut processed_paths = Vec::new();
@@ -45,7 +55,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                         continue;
                     } else if processed_paths.contains(&path) {
                         // Let's skip since it's
-                        // not humanly possible to 
+                        // not humanly possible to
                         // edit and save configurations
                         // that fast
                         continue;
@@ -62,8 +72,12 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                         operations::copy_to_kubo(&path, &state, operations::WithTarget::Yay);
                     }
                 }
-            },
-            Ok(notify::Event { kind: notify::EventKind::Remove(_), paths, .. }) => {
+            }
+            Ok(notify::Event {
+                kind: notify::EventKind::Remove(_),
+                paths,
+                ..
+            }) => {
                 // Sleep for a 500ms to account for editor shenanigans
                 std::thread::sleep(std::time::Duration::from_millis(50));
                 let mut processed_paths = Vec::new();
@@ -72,7 +86,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                         continue;
                     } else if processed_paths.contains(&path) {
                         // Let's skip since it's
-                        // not humanly possible to 
+                        // not humanly possible to
                         // edit and save configurations
                         // that fast
                         continue;
@@ -86,7 +100,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                         operations::delete_from_kubo(&path, &state);
                     }
                 }
-            },
+            }
             Ok(_) => continue,
             Err(error) => log::error!("Error: {error:?}"),
         }

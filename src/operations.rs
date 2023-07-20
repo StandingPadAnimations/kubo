@@ -1,11 +1,14 @@
 use crate::kubo_manager;
 use std::path::{Path, PathBuf};
 
-/// Get the target directory given a 
+/// Get the target directory given a
 /// source directory or path
 ///
 /// Returns: PathBuf
-fn get_target_dir(dot_path: &Path, state: &kubo_manager::KuboManager::<kubo_manager::Locked>) -> PathBuf {
+fn get_target_dir(
+    dot_path: &Path,
+    state: &kubo_manager::KuboManager<kubo_manager::Locked>,
+) -> PathBuf {
     // Get the Kubo path
     let kubo_path = state.get_kubo_dir();
     let mut kubo_dir = Path::new(&kubo_path);
@@ -29,10 +32,9 @@ fn get_target_dir(dot_path: &Path, state: &kubo_manager::KuboManager::<kubo_mana
     kubo_dir.to_owned()
 }
 
-
 pub enum WithTarget {
     Yay,
-    Nay
+    Nay,
 }
 
 /// Copies files to $HOME/.kubo
@@ -40,27 +42,29 @@ pub enum WithTarget {
 /// Expects a locked state; if state
 /// needs to be unlocked, it will be unlocked
 /// here.
-pub fn copy_to_kubo(dot_path: &Path, state: &kubo_manager::KuboManager::<kubo_manager::Locked>, with_target: WithTarget) { 
+pub fn copy_to_kubo(
+    dot_path: &Path,
+    state: &kubo_manager::KuboManager<kubo_manager::Locked>,
+    with_target: WithTarget,
+) {
     // Perform the actual copying
     let kubo_dir = match with_target {
-                        WithTarget::Yay => get_target_dir(dot_path, state),
-                        WithTarget::Nay => PathBuf::from(state.get_kubo_dir())
-                };
+        WithTarget::Yay => get_target_dir(dot_path, state),
+        WithTarget::Nay => PathBuf::from(state.get_kubo_dir()),
+    };
     log::info!("Kubo Dir (C): {kubo_dir:?}");
     if dot_path.is_dir() {
-        let options = fs_extra::dir::CopyOptions::new()
-                        .overwrite(true);
+        let options = fs_extra::dir::CopyOptions::new().overwrite(true);
         let res = fs_extra::dir::copy(dot_path, kubo_dir, &options);
         if let Err(err) = res {
             log::error!("Copying dir failed (C): {err:?}");
         }
     } else {
-        let options = fs_extra::file::CopyOptions::new()
-                        .overwrite(true);
+        let options = fs_extra::file::CopyOptions::new().overwrite(true);
         let res = fs_extra::file::copy(dot_path, kubo_dir, &options);
         if let Err(err) = res {
             log::error!("Copying file failed (C): {err:?}");
-        }   
+        }
     }
 }
 
@@ -70,9 +74,9 @@ pub fn copy_to_kubo(dot_path: &Path, state: &kubo_manager::KuboManager::<kubo_ma
 /// needs to be unlocked, it will be unlocked
 /// here.
 ///
-/// Almost identical to copying but with deleting 
+/// Almost identical to copying but with deleting
 /// instead.
-pub fn delete_from_kubo(dot_path: &Path, state: &kubo_manager::KuboManager::<kubo_manager::Locked>) {
+pub fn delete_from_kubo(dot_path: &Path, state: &kubo_manager::KuboManager<kubo_manager::Locked>) {
     // Perform the actual removing
     let kubo_dir = get_target_dir(dot_path, state);
     log::info!("Kubo Dir: {kubo_dir:?}");
@@ -85,6 +89,6 @@ pub fn delete_from_kubo(dot_path: &Path, state: &kubo_manager::KuboManager::<kub
         let res = std::fs::remove_file(kubo_dir);
         if let Err(err) = res {
             log::error!("Removing file failed (R): {err:?}");
-        }   
+        }
     }
 }

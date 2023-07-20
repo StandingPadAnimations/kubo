@@ -1,10 +1,10 @@
 use clap::{Parser, Subcommand};
 use std::io::{self, Write};
 
-mod kubo_manager;
-mod kubo_config;
-mod operations;
 mod daemon;
+mod kubo_config;
+mod kubo_manager;
+mod operations;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -20,13 +20,13 @@ enum Commands {
     Add {
         /// The name associated with
         /// a set of dotfiles
-        name: String, 
-        /// The normal location of 
+        name: String,
+        /// The normal location of
         /// a set of dotfiles
-        src: String, 
-        /// The target folder in 
+        src: String,
+        /// The target folder in
         /// .kubo
-        target: String 
+        target: String,
     },
     /// Removes a dotfile from kubo.toml
     Rm { name: String },
@@ -40,7 +40,7 @@ fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     let cli = Cli::parse();
     match &cli.command {
-        Commands::Add { name, src, target} => {
+        Commands::Add { name, src, target } => {
             let state = kubo_manager::KuboManager::new().lock();
             let res = kubo_config::add_dotfile(state, name, src, target);
             if res.is_ok() {
@@ -64,9 +64,9 @@ fn main() {
             // a lot of dotfiles
             if let Ok(dots) = list {
                 let stdout = io::stdout();
-                let mut handle = io::BufWriter::new(stdout); 
+                let mut handle = io::BufWriter::new(stdout);
                 for d in dots {
-                    let _ = writeln!(handle, "{}", d); 
+                    let _ = writeln!(handle, "{}", d);
                 }
             }
         }
@@ -84,7 +84,7 @@ fn main() {
             let _ = write!(lock, "{}", std::process::id());
 
             // Run the daemon
-            let state = kubo_config::read_config(state); 
+            let state = kubo_config::read_config(state);
             let state = state.initial_copy();
             if let Err(error) = daemon::daemon(state.watch_paths(), state) {
                 log::error!("Error: {error:?}");

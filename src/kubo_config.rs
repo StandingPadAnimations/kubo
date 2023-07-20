@@ -1,7 +1,7 @@
+use crate::kubo_manager;
 use std::{fs::File, io::Read};
 use toml::Table;
-use toml_edit::{Document, value};
-use crate::kubo_manager;
+use toml_edit::{value, Document};
 
 // Stolen from Stackoverflow (https://stackoverflow.com/questions/65976432/how-to-remove-first-and-last-character-of-a-string-in-rust/65976629#65976629)
 fn rem_first_and_last(value: String) -> String {
@@ -11,7 +11,9 @@ fn rem_first_and_last(value: String) -> String {
     chars.as_str().to_string()
 }
 
-pub fn read_config(state: kubo_manager::KuboManager::<kubo_manager::Unlocked>) -> kubo_manager::KuboManager::<kubo_manager::Locked> {
+pub fn read_config(
+    state: kubo_manager::KuboManager<kubo_manager::Unlocked>,
+) -> kubo_manager::KuboManager<kubo_manager::Locked> {
     let mut toml_config = String::new();
     File::open(state.get_kubo_dir() + "/kubo.toml")
         .and_then(|mut f| f.read_to_string(&mut toml_config))
@@ -28,7 +30,12 @@ pub fn read_config(state: kubo_manager::KuboManager::<kubo_manager::Unlocked>) -
     temp_state.lock()
 }
 
-pub fn add_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, name: &str, src: &str, target: &str) -> Result<(), ()> {
+pub fn add_dotfile(
+    state: kubo_manager::KuboManager<kubo_manager::Locked>,
+    name: &str,
+    src: &str,
+    target: &str,
+) -> Result<(), ()> {
     let mut toml_config = String::new();
     File::open(state.get_kubo_dir() + "/kubo.toml")
         .and_then(|mut f| f.read_to_string(&mut toml_config))
@@ -37,14 +44,17 @@ pub fn add_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, nam
     let mut toml_config = toml_config.parse::<Document>().unwrap();
     toml_config[name]["source"] = value(src);
     toml_config[name]["target"] = value(target);
-    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string()); 
+    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string());
     if res.is_err() {
         return Err(());
     }
     Ok(())
 }
 
-pub fn remove_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, name: &str) -> Result<(), ()> {
+pub fn remove_dotfile(
+    state: kubo_manager::KuboManager<kubo_manager::Locked>,
+    name: &str,
+) -> Result<(), ()> {
     let mut toml_config = String::new();
     File::open(state.get_kubo_dir() + "/kubo.toml")
         .and_then(|mut f| f.read_to_string(&mut toml_config))
@@ -52,14 +62,16 @@ pub fn remove_dotfile(state: kubo_manager::KuboManager::<kubo_manager::Locked>, 
 
     let mut toml_config = toml_config.parse::<Document>().unwrap();
     toml_config.remove(name);
-    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string()); 
+    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string());
     if res.is_err() {
         return Err(());
     }
     Ok(())
 }
 
-pub fn list_dotfiles(state: kubo_manager::KuboManager::<kubo_manager::Locked>) -> Result<Vec<String>, ()> {
+pub fn list_dotfiles(
+    state: kubo_manager::KuboManager<kubo_manager::Locked>,
+) -> Result<Vec<String>, ()> {
     let mut toml_config = String::new();
     File::open(state.get_kubo_dir() + "/kubo.toml")
         .and_then(|mut f| f.read_to_string(&mut toml_config))
@@ -72,4 +84,3 @@ pub fn list_dotfiles(state: kubo_manager::KuboManager::<kubo_manager::Locked>) -
     }
     Ok(res)
 }
-
