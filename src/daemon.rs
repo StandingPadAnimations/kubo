@@ -38,7 +38,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
         match res {
             Ok(notify::Event { kind: notify::EventKind::Modify(_), paths, .. }) => {
                 // Sleep for a 500ms to account for editor shenanigans
-                std::thread::sleep(std::time::Duration::from_millis(500));
+                std::thread::sleep(std::time::Duration::from_millis(50));
                 let mut processed_paths = Vec::new();
                 for path in paths {
                     if !path.exists() {
@@ -65,7 +65,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
             },
             Ok(notify::Event { kind: notify::EventKind::Remove(_), paths, .. }) => {
                 // Sleep for a 500ms to account for editor shenanigans
-                std::thread::sleep(std::time::Duration::from_millis(500));
+                std::thread::sleep(std::time::Duration::from_millis(50));
                 let mut processed_paths = Vec::new();
                 for path in paths {
                     if !path.exists() {
