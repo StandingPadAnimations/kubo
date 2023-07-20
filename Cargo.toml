@@ -1,5 +1,6 @@
 [package]
 name = "kubo"
+about = "A dotfiles manager with real time file watching and 100% less sym links!"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0"
