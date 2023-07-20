@@ -21,8 +21,8 @@ Finally, run `kubo daemon` to start the daemon.
 
 ## Why another dotfile manager? Why a daemon of all things?
 I wanted a dotfile manager that didn't do sym-links yet also updated by backed up dotfiles in real time. I used Chezmoi before, and while it's nice, it has the following issues:
-- Does not update in real time
-- Deleting old configs is a pain
+- Does not update in real time.
+- Deleting old configs is a pain.
 
 In addition, I also wanted to declare my dotfiles with a config file. I tried [toml-bombadil](https://github.com/oknozor/toml-bombadil) (sym-linked based, but I figured I would try it anyway) but it ended up deleting my dotfiles due to me thinking it would copy my config files first. I was able to restore those files, but it was a pain and I didn't want to do that again.
 
@@ -34,7 +34,7 @@ So I wrote Kubo, a dotfiles manager without sym links that updates in real time.
 - Kubo should only copy to `.kubo`, the user decides what they want to do with `.kubo`.
 
 ## Why the name Kubo?
-When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was also watching the anime "Kubo Won't Let Me Be Invisible". I figured Kubo made a good name (and naming things is hard)
+When I tried toml-bombadil (i.e. the manager that deleted my dotfiles), I was also watching the anime "Kubo Won't Let Me Be Invisible". I figured Kubo made a good name (and naming things is hard).
 
 ## What are some features planned?
 Kubo is "mostly complete", I just got to iron out bugs, make the code cleaner, etc. I do want to add a `packages` option eventually, and have Kubo either list or install packages associated with one's dotfiles. After all, I also want to declare what packages use what set of dotfiles.
