@@ -46,3 +46,6 @@ In addition, I want to add some subcommands to make adding dotfiles easier, like
 
 ## Ew, Rust (Actual comment I've gotten)
 You're not forced to use this, I created this for personal use and wanted to share it.
+
+## Contributing
+Check out `CONTRIBUTING.md` in the GitHub repo for more information!
