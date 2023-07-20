@@ -1,6 +1,27 @@
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, fs::File};
 use crate::{kubo_manager, kubo_config, operations};
+use fd_lock::RwLock;
+
+pub struct LockFile(pub RwLock<File>);
+impl LockFile {
+    pub fn new(state: &kubo_manager::KuboManager::<kubo_manager::Unlocked>) -> Result<Self, ()> {
+        let path = state.get_kubo_dir() + "/kubo.lockfile";
+        if Path::new(&path).exists() == false {
+            if let Err(_) = File::create(&path) {
+                return Err(());
+            }
+        }
+        let mut lock = RwLock::new(File::open(&path).unwrap());
+        {
+            let write_lock = lock.try_write();
+            if write_lock.is_err() {
+                return Err(());
+            }
+        }
+        Ok(LockFile(lock))
+    }
+}
 
 /// Actual daemon that watches files for changes
 pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManager::<kubo_manager::Locked>) -> notify::Result<()> {

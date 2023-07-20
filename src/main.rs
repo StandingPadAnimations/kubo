@@ -71,8 +71,20 @@ fn main() {
             }
         }
         Commands::Daemon => {
-            // Start the daemon
-            let state = kubo_config::read_config(kubo_manager::KuboManager::new()); 
+            // Create a lock by getting exclusive
+            // write access to a lockfile
+            let state = kubo_manager::KuboManager::new();
+            let lockfile = daemon::LockFile::new(&state);
+            if lockfile.is_err() {
+                log::error!("Another Kubo instance is being ran!");
+                return;
+            }
+            let mut lockfile = lockfile.unwrap();
+            let mut lock = lockfile.0.write().unwrap();
+            let _ = write!(lock, "{}", std::process::id());
+
+            // Run the daemon
+            let state = kubo_config::read_config(state); 
             let state = state.initial_copy();
             if let Err(error) = daemon::daemon(state.watch_paths(), state) {
                 log::error!("Error: {error:?}");
