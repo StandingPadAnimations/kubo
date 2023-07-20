@@ -82,7 +82,10 @@ pub fn daemon<P: AsRef<Path>>(
                 std::thread::sleep(std::time::Duration::from_millis(50));
                 let mut processed_paths = Vec::new();
                 for path in paths {
-                    if !path.exists() {
+                    // If the path still exists, then
+                    // why would we need to remove the
+                    // file?
+                    if path.exists() {
                         continue;
                     } else if processed_paths.contains(&path) {
                         // Let's skip since it's
