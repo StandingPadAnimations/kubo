@@ -37,8 +37,20 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
     for res in rx {
         match res {
             Ok(notify::Event { kind: notify::EventKind::Modify(_), paths, .. }) => {
-                log::info!("Change: {paths:?}");
+                // Sleep for a 500ms to account for editor shenanigans
+                std::thread::sleep(std::time::Duration::from_millis(500));
+                let mut processed_paths = Vec::new();
                 for path in paths {
+                    if !path.exists() {
+                        continue;
+                    } else if processed_paths.contains(&path) {
+                        // Let's skip since it's
+                        // not humanly possible to 
+                        // edit and save configurations
+                        // that fast
+                        continue;
+                    }
+                    processed_paths.push(path.clone());
                     log::info!("{path:?}");
                     // TODO: Don't perform a full copy on config change
                     if path.file_name().is_some() && path.file_name().unwrap() == "kubo.toml" {
@@ -52,8 +64,20 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                 }
             },
             Ok(notify::Event { kind: notify::EventKind::Remove(_), paths, .. }) => {
-                log::info!("Change: {paths:?}");
+                // Sleep for a 500ms to account for editor shenanigans
+                std::thread::sleep(std::time::Duration::from_millis(500));
+                let mut processed_paths = Vec::new();
                 for path in paths {
+                    if !path.exists() {
+                        continue;
+                    } else if processed_paths.contains(&path) {
+                        // Let's skip since it's
+                        // not humanly possible to 
+                        // edit and save configurations
+                        // that fast
+                        continue;
+                    }
+                    processed_paths.push(path.clone());
                     log::info!("{path:?}");
                     // TODO: Don't perform a full copy on config change
                     if path.file_name().is_some() && path.file_name().unwrap() == "kubo.toml" {
@@ -63,7 +87,7 @@ pub fn daemon<P: AsRef<Path>>(paths: Vec<P>, mut state: kubo_manager::KuboManage
                     }
                 }
             },
-            Ok(_) => log::info!(""),
+            Ok(_) => continue,
             Err(error) => log::error!("Error: {error:?}"),
         }
     }
