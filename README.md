@@ -12,12 +12,24 @@ kitty = { source = "/home/USER/.config/kitty", target = "kitty" }
 
 `source` defines where the dotfiles would be stored normally in the home directory, and `target` defines where in `.kubo` you want to copy them too (and under what name). Kubo does not currently create parent folders yet, but that's planned for the future.
 
-To add dotfiles easily, you can run `kubo add <name> <dotfiles> <target>`. Using Hyprland as an example:
+To add dotfiles easily, you can run `kubo add -n <name> -s <dotfiles> -t <target>`. Using Hyprland as an example:
 ```sh
-kubo add hyprland ~/.config/hypr hypr
+kubo add -n hyprland -s ~/.config/hypr -t hypr
 ```
 
 Finally, run `kubo daemon` to start the daemon.
+
+### Completions
+Kubo can automatically generate completions using `kubo --generate <shell>`, and these completions can be used in your shell configuration.
+```bash
+# .bashrc
+eval "$(kubo --generate bash)"
+
+# .zshrc
+eval "$(kubo --generate zsh)"
+
+# Same for other shells...
+```
 
 ## Why another dotfile manager? Why a daemon of all things?
 I wanted a dotfile manager that didn't do sym-links yet also updated by backed up dotfiles in real time. I used Chezmoi before, and while it's nice, it has the following issues:

@@ -1,5 +1,5 @@
 use crate::kubo_manager;
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, path::Path};
 use toml::Table;
 use toml_edit::{value, Document};
 
@@ -33,7 +33,7 @@ pub fn read_config(
 pub fn add_dotfile(
     state: kubo_manager::KuboManager<kubo_manager::Locked>,
     name: &str,
-    src: &str,
+    src: &Path,
     target: &str,
 ) -> Result<(), ()> {
     let mut toml_config = String::new();
@@ -42,7 +42,7 @@ pub fn add_dotfile(
         .unwrap();
 
     let mut toml_config = toml_config.parse::<Document>().unwrap();
-    toml_config[name]["source"] = value(src);
+    toml_config[name]["source"] = value(src.to_str().unwrap());
     toml_config[name]["target"] = value(target);
     let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string());
     if res.is_err() {
