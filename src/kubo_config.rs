@@ -1,5 +1,5 @@
 use crate::kubo_manager;
-use std::{fs::File, io::Read, path::Path};
+use std::{fs::File, io::Read, path::{Path, PathBuf}};
 use toml::Table;
 use toml_edit::{value, Document};
 
@@ -15,7 +15,8 @@ pub fn read_config(
     state: kubo_manager::KuboManager<kubo_manager::Unlocked>,
 ) -> kubo_manager::KuboManager<kubo_manager::Locked> {
     let mut toml_config = String::new();
-    File::open(state.get_kubo_dir() + "/kubo.toml")
+    File::open(state.get_kubo_dir()
+            .join::<PathBuf>("kubo.toml".into()))
         .and_then(|mut f| f.read_to_string(&mut toml_config))
         .unwrap();
 
@@ -24,8 +25,7 @@ pub fn read_config(
     let mut temp_state = state;
     for item in toml_config {
         let src = rem_first_and_last(item.1["source"].to_string());
-        let dst = rem_first_and_last(item.1["target"].to_string());
-        temp_state = temp_state.add_path(src.to_string(), dst.to_string());
+        temp_state = temp_state.add_path(src.into());
     }
     temp_state.lock()
 }
@@ -34,17 +34,17 @@ pub fn add_dotfile(
     state: kubo_manager::KuboManager<kubo_manager::Locked>,
     name: &str,
     src: &Path,
-    target: &str,
 ) -> Result<(), ()> {
     let mut toml_config = String::new();
-    File::open(state.get_kubo_dir() + "/kubo.toml")
+    File::open(state.get_kubo_dir().join::<PathBuf>("kubo.toml".into()))
         .and_then(|mut f| f.read_to_string(&mut toml_config))
         .unwrap();
 
     let mut toml_config = toml_config.parse::<Document>().unwrap();
     toml_config[name]["source"] = value(src.to_str().unwrap());
-    toml_config[name]["target"] = value(target);
-    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string());
+    let res = std::fs::write(state.get_kubo_dir()
+            .join::<PathBuf>("kubo.toml".into()), 
+        toml_config.to_string());
     if res.is_err() {
         return Err(());
     }
@@ -56,13 +56,15 @@ pub fn remove_dotfile(
     name: &str,
 ) -> Result<(), ()> {
     let mut toml_config = String::new();
-    File::open(state.get_kubo_dir() + "/kubo.toml")
+    File::open(state.get_kubo_dir().join::<PathBuf>("kubo.toml".into()))
         .and_then(|mut f| f.read_to_string(&mut toml_config))
         .unwrap();
 
     let mut toml_config = toml_config.parse::<Document>().unwrap();
     toml_config.remove(name);
-    let res = std::fs::write(state.get_kubo_dir() + "/kubo.toml", toml_config.to_string());
+    let res = std::fs::write(state.get_kubo_dir()
+            .join::<PathBuf>("kubo.toml".into()), 
+        toml_config.to_string());
     if res.is_err() {
         return Err(());
     }
@@ -73,7 +75,7 @@ pub fn list_dotfiles(
     state: kubo_manager::KuboManager<kubo_manager::Locked>,
 ) -> Result<Vec<String>, ()> {
     let mut toml_config = String::new();
-    File::open(state.get_kubo_dir() + "/kubo.toml")
+    File::open(state.get_kubo_dir().join::<PathBuf>("kubo.toml".into()))
         .and_then(|mut f| f.read_to_string(&mut toml_config))
         .unwrap();
 

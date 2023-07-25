@@ -29,10 +29,6 @@ enum Commands {
         /// a set of dotfiles
         #[arg(short, long, value_hint = ValueHint::AnyPath)]
         src: PathBuf,
-        /// The target folder in
-        /// .kubo
-        #[arg(short, long, value_hint = ValueHint::Unknown)]
-        target: String,
     },
     /// Removes a dotfile from kubo.toml
     Rm { 
@@ -59,11 +55,11 @@ fn main() {
     } else {
         if cli.command.is_some() {
             match &cli.command.unwrap() {
-                Commands::Add { name, src, target } => {
+                Commands::Add { name, src } => {
                     let state = kubo_manager::KuboManager::new().lock();
-                    let res = kubo_config::add_dotfile(state, name, src, target);
+                    let res = kubo_config::add_dotfile(state, name, src);
                     if res.is_ok() {
-                        println!("Added {} ({} -> {})", name, target, src.to_str().unwrap());
+                        println!("Added {} ({})", name, src.to_str().unwrap());
                     }
                 }
                 Commands::Rm { name } => {

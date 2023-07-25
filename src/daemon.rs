@@ -9,8 +9,8 @@ use std::{
 pub struct LockFile(pub RwLock<File>);
 impl LockFile {
     pub fn new(state: &kubo_manager::KuboManager<kubo_manager::Unlocked>) -> Result<Self, ()> {
-        let path = state.get_kubo_dir() + "/kubo.lockfile";
-        if Path::new(&path).exists() == false {
+        let path = state.get_kubo_dir().join::<PathBuf>("kubo.lockfile".into());
+        if path.exists() == false {
             if let Err(_) = File::create(&path) {
                 return Err(());
             }
@@ -38,7 +38,7 @@ pub fn daemon<P: AsRef<Path>>(
     }
 
     // Add Kubo config
-    let kubo_config = PathBuf::from(state.get_kubo_dir() + "/kubo.toml");
+    let kubo_config = state.get_kubo_dir().join::<PathBuf>("kubo.toml".into());
     watcher.watch(kubo_config.as_ref(), RecursiveMode::NonRecursive)?;
     for res in rx {
         match res {
@@ -49,18 +49,10 @@ pub fn daemon<P: AsRef<Path>>(
             }) => {
                 // Sleep for a 500ms to account for editor shenanigans
                 std::thread::sleep(std::time::Duration::from_millis(50));
-                let mut processed_paths = Vec::new();
                 for path in paths {
                     if !path.exists() {
                         continue;
-                    } else if processed_paths.contains(&path) {
-                        // Let's skip since it's
-                        // not humanly possible to
-                        // edit and save configurations
-                        // that fast
-                        continue;
-                    }
-                    processed_paths.push(path.clone());
+                    }                     
                     log::info!("{path:?}");
                     // TODO: Don't perform a full copy on config change
                     if path.file_name().is_some() && path.file_name().unwrap() == "kubo.toml" {
@@ -69,7 +61,7 @@ pub fn daemon<P: AsRef<Path>>(
                         state = kubo_config::read_config(nstate);
                         state = state.initial_copy();
                     } else {
-                        operations::copy_to_kubo(&path, &state, operations::WithTarget::Yay);
+                        operations::copy_to_kubo(&path, &state);
                     }
                 }
             }
@@ -80,21 +72,13 @@ pub fn daemon<P: AsRef<Path>>(
             }) => {
                 // Sleep for a 500ms to account for editor shenanigans
                 std::thread::sleep(std::time::Duration::from_millis(50));
-                let mut processed_paths = Vec::new();
                 for path in paths {
                     // If the path still exists, then
                     // why would we need to remove the
                     // file?
                     if path.exists() {
                         continue;
-                    } else if processed_paths.contains(&path) {
-                        // Let's skip since it's
-                        // not humanly possible to
-                        // edit and save configurations
-                        // that fast
-                        continue;
-                    }
-                    processed_paths.push(path.clone());
+                    }  
                     log::info!("{path:?}");
                     // TODO: Don't perform a full copy on config change
                     if path.file_name().is_some() && path.file_name().unwrap() == "kubo.toml" {

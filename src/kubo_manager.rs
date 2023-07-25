@@ -20,8 +20,8 @@ pub struct Unlocked;
 pub struct KuboManager<State = Unlocked> {
     /// A list of source paths to
     /// their target paths.
-    paths: Vec<(String, String)>,
-    kubo_dir: String,
+    paths: Vec<PathBuf>,
+    kubo_dir: PathBuf,
     state: std::marker::PhantomData<State>,
 }
 
@@ -38,31 +38,27 @@ impl KuboManager {
         }
         KuboManager {
             paths: Vec::new(),
-            kubo_dir: home_dir.unwrap() + "/.kubo",
+            kubo_dir: PathBuf::from(home_dir.unwrap() + "/.kubo"),
             state: Default::default(),
         }
     }
 }
 
 impl<State> KuboManager<State> {
-    /// Get the target path for a given
-    /// source path, provided the source
-    /// path's parent is stored here. Runs
-    /// in O(n).
+    /// Given a path, return the 
+    /// Kubo equivilent
     ///
-    /// Returns: Result<String, ()>
-    /// String if target found.
-    /// Err(()) if target not found.
-    pub fn get_target(&self, path: &Path) -> Result<String, ()> {
-        for (src, target) in &self.paths {
-            if path.starts_with(src) {
-                let target_path: std::path::PathBuf =
-                    path.iter().skip_while(|p| *p != target.as_str()).collect();
-                let target_path = target_path.to_str();
-                if target_path.is_none() {
-                    return Err(());
-                }
-                return Ok(String::from(target_path.unwrap()));
+    /// Returns: 
+    /// - PathBuf if path is managed by Kubo
+    /// - () otherwise
+    pub fn convert_path(&self, path: &Path) -> Result<PathBuf, ()> {
+        for managed_path in &self.paths {
+            if path.starts_with(managed_path){
+                let home_dir = PathBuf::from(std::env::var("HOME").unwrap());
+                return Ok(
+                    self.kubo_dir.join(path 
+                            .strip_prefix(home_dir) 
+                            .unwrap()));
             }
         }
         Err(())
@@ -71,7 +67,7 @@ impl<State> KuboManager<State> {
     /// Return the kubo folder path
     ///
     /// Returns: String
-    pub fn get_kubo_dir(&self) -> String {
+    pub fn get_kubo_dir(&self) -> PathBuf {
         self.kubo_dir.clone()
     }
 }
@@ -83,9 +79,8 @@ impl KuboManager<Unlocked> {
     /// Returns: KuboManager<Unlocked>
     ///
     /// path: the path of the actual configuration
-    /// target: the target path in $HOME/.kubo
-    pub fn add_path(mut self, path: String, target: String) -> KuboManager<Unlocked> {
-        self.paths.push((path, target));
+    pub fn add_path(mut self, path: PathBuf) -> KuboManager<Unlocked> {
+        self.paths.push(path);
         self
     }
 
@@ -128,8 +123,8 @@ impl KuboManager<Locked> {
     ///
     /// Returns: KuboManager<Locked>
     pub fn initial_copy(self) -> KuboManager<Locked> {
-        for (path, _) in &self.paths {
-            operations::copy_to_kubo(Path::new(path), &self, operations::WithTarget::Nay);
+        for path in &self.paths {
+            operations::copy_to_kubo(Path::new(path), &self);
         }
         self
     }
@@ -139,7 +134,7 @@ impl KuboManager<Locked> {
     /// Return: Vec<AsRef<Path>>
     pub fn watch_paths(&self) -> Vec<PathBuf> {
         let mut wpaths = Vec::new();
-        for (path, _) in &self.paths {
+        for path in &self.paths {
             wpaths.push(PathBuf::from(path));
         }
         wpaths

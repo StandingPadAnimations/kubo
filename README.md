@@ -4,15 +4,15 @@ A dotfile manager that watches files in real time.
 ## Usage
 Create a directory called `.kubo` in `$HOME`, then create a file called `kubo.toml` in `.kubo`. `kubo.toml` lists your dotfiles, and can look something like this:
 ```toml
-hypr =  { source = "/home/USER/.config/hypr",  target = "hypr"  }
-eww  =  { source = "/home/USER/.config/eww",   target = "eww"   }
-kitty = { source = "/home/USER/.config/kitty", target = "kitty" }
+hypr =  { source = "/home/USER/.config/hypr"  }
+eww  =  { source = "/home/USER/.config/eww"   }
+kitty = { source = "/home/USER/.config/kitty" }
 ```
 (Note at the moment, `~` does not work for paths defined in kubo.toml yet, but I plan to fix that)
 
-`source` defines where the dotfiles would be stored normally in the home directory, and `target` defines where in `.kubo` you want to copy them too (and under what name). Kubo does not currently create parent folders yet, but that's planned for the future.
+`source` defines where the dotfiles would be stored normally in the home directory, which is mirrored in `.kubo`.
 
-To add dotfiles easily, you can run `kubo add -n <name> -s <dotfiles> -t <target>`. Using Hyprland as an example:
+To add dotfiles easily, you can run `kubo add -n <name> -s <dotfiles>`. Using Hyprland as an example:
 ```sh
 kubo add -n hyprland -s ~/.config/hypr -t hypr
 ```

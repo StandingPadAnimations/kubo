@@ -21,20 +21,17 @@ fn get_target_dir(
 
     // Get target directory
     log::info!("Dot path: {dot_path:?}");
-    let target = state.get_target(dot_path);
+    let target = state.convert_path(dot_path);
     if target.is_err() {
         log::error!("Path not managed: {target:?}");
     }
-    let target = kubo_dir.join(target.unwrap());
-    if target.exists() {
-        kubo_dir = &target;
+    let target = target.unwrap();
+    if dot_path.is_dir() && !target.exists() {
+        fs_extra::dir::create_all(target.clone(), false).unwrap();
+        log::info!("Dir created, {}", target.clone().to_str().unwrap());
     }
+    kubo_dir = &target;
     kubo_dir.to_owned()
-}
-
-pub enum WithTarget {
-    Yay,
-    Nay,
 }
 
 /// Copies files to $HOME/.kubo
@@ -45,16 +42,13 @@ pub enum WithTarget {
 pub fn copy_to_kubo(
     dot_path: &Path,
     state: &kubo_manager::KuboManager<kubo_manager::Locked>,
-    with_target: WithTarget,
 ) {
     // Perform the actual copying
-    let kubo_dir = match with_target {
-        WithTarget::Yay => get_target_dir(dot_path, state),
-        WithTarget::Nay => PathBuf::from(state.get_kubo_dir()),
-    };
+    let kubo_dir = get_target_dir(dot_path, state);
     log::info!("Kubo Dir (C): {kubo_dir:?}");
     if dot_path.is_dir() {
-        let options = fs_extra::dir::CopyOptions::new().overwrite(true);
+        let options = fs_extra::dir::CopyOptions::new()
+            .overwrite(true);
         let res = fs_extra::dir::copy(dot_path, kubo_dir, &options);
         if let Err(err) = res {
             log::error!("Copying dir failed (C): {err:?}");
